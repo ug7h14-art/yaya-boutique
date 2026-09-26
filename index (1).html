@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YaYa Boutique</title>
+<style>
+:root{--pink:#e88bb5;--gold:#d4af37;--black:#111;--light:#fff7fb}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--light);color:#222}
+header{background:#111;color:#fff;padding:18px 6%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-size:27px;font-weight:800;color:#f2b7d2}.logo span{color:var(--gold)}
+.cart{background:var(--pink);border:0;color:#111;padding:11px 17px;border-radius:25px;font-weight:bold;cursor:pointer}
+.hero{padding:55px 7%;text-align:center;background:linear-gradient(135deg,#111,#2a1721)}
+.hero h1{font-size:46px;margin:0;color:#fff}.hero h1 span{color:var(--pink)}.hero p{color:#ddd;font-size:18px}
+.categories{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:25px}.categories button{border:2px solid var(--gold);background:#fff;padding:10px 18px;border-radius:22px;cursor:pointer}.categories button.active,.categories button:hover{background:var(--black);color:#fff}
+.search{display:block;width:min(600px,90%);margin:0 auto 25px;padding:14px;border:1px solid #ddd;border-radius:25px;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;padding:10px 6% 50px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 5px 20px #00000012;border:1px solid #f0d5e1}.pic{height:230px;background:linear-gradient(135deg,#f5c7da,#222);display:flex;align-items:center;justify-content:center;color:#fff;font-size:55px}.info{padding:16px}.info h3{margin:0 0 8px}.price{color:#b18a00;font-size:20px;font-weight:bold}.add{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer}.add:hover{background:var(--pink);color:#111}
+footer{background:#111;color:#fff;text-align:center;padding:30px}.gold{color:var(--gold)}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:30}.box{background:#fff;width:min(500px,92%);margin:8vh auto;padding:25px;border-radius:18px;max-height:80vh;overflow:auto}.close{float:right;font-size:25px;cursor:pointer}.checkout{display:block;text-align:center;background:#25D366;color:#fff;text-decoration:none;padding:14px;border-radius:12px;font-weight:bold;margin-top:18px}
+</style>
+</head>
+<body>
+<header><div class="logo">YaYa <span>Boutique</span></div><button class="cart" onclick="openCart()">🛒 Panier (<b id="count">0</b>)</button></header>
+
+<section class="hero"><h1>YaYa <span>Boutique</span></h1><p>Mode • Accessoires • Beauté</p></section>
+
+<div class="categories">
+<button class="active" onclick="filterCat('Tous',this)">Tous</button>
+<button onclick="filterCat('Vêtements',this)">👗 Vêtements</button>
+<button onclick="filterCat('Accessoires',this)">💍 Accessoires</button>
+<button onclick="filterCat('Beauté',this)">💄 Beauté</button>
+</div>
+<input class="search" id="search" oninput="render()" placeholder="🔎 Rechercher un produit...">
+
+<main class="grid" id="products"></main>
+
+<footer><h2>YaYa Boutique</h2><p>Commande directement sur WhatsApp</p><p class="gold">0794 62 02 41</p></footer>
+
+<div class="modal" id="modal"><div class="box"><span class="close" onclick="closeCart()">×</span><h2>🛒 Votre panier</h2><div id="cart"></div><a id="wa" class="checkout" target="_blank">Commander sur WhatsApp</a></div></div>
+
+<script>
+const WA="213794620241";
+const products=[
+{name:"Robe élégante",cat:"Vêtements",price:4500,emoji:"👗"},
+{name:"Ensemble chic",cat:"Vêtements",price:6500,emoji:"👚"},
+{name:"Sac à main",cat:"Accessoires",price:5500,emoji:"👜"},
+{name:"Collier doré",cat:"Accessoires",price:2500,emoji:"📿"},
+{name:"Lunettes tendance",cat:"Accessoires",price:2200,emoji:"🕶️"},
+{name:"Parfum féminin",cat:"Beauté",price:4800,emoji:"🌸"},
+{name:"Rouge à lèvres",cat:"Beauté",price:1800,emoji:"💄"},
+{name:"Coffret beauté",cat:"Beauté",price:3900,emoji:"🎁"}
+];
+let cart=[],cat="Tous";
+function render(){
+ let q=document.getElementById("search").value.toLowerCase();
+ document.getElementById("products").innerHTML=products.filter(p=>(cat==="Tous"||p.cat===cat)&&p.name.toLowerCase().includes(q)).map((p,i)=>`
+ <article class="card"><div class="pic">${p.emoji}</div><div class="info"><h3>${p.name}</h3><small>${p.cat}</small><p class="price">${p.price.toLocaleString('fr-DZ')} DA</p><button class="add" onclick="add(${products.indexOf(p)})">Ajouter au panier</button></div></article>`).join("");
+}
+function filterCat(c,b){cat=c;document.querySelectorAll(".categories button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()}
+function add(i){cart.push(products[i]);document.getElementById("count").textContent=cart.length}
+function openCart(){
+ document.getElementById("modal").style.display="block";
+ let total=cart.reduce((s,p)=>s+p.price,0);
+ document.getElementById("cart").innerHTML=cart.length?cart.map(p=>`<p>${p.emoji} ${p.name} — <b>${p.price.toLocaleString('fr-DZ')} DA</b></p>`).join("")+`<hr><h3>Total: ${total.toLocaleString('fr-DZ')} DA</h3>`:"<p>Votre panier est vide.</p>";
+ let text="Bonjour YaYa Boutique 👋%0AJe voudrais commander :%0A"+cart.map(p=>"- "+p.name+" : "+p.price+" DA").join("%0A")+"%0A%0ATotal : "+total+" DA";
+ document.getElementById("wa").href="https://wa.me/"+WA+"?text="+text;
+}
+function closeCart(){document.getElementById("modal").style.display="none"}
+render();
+</script>
+</body>
+</html>
